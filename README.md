@@ -12,12 +12,12 @@ vracet hodnotu. Pokud je třeba, aby lambda výraz vracel hodnotu je možné pou
 který v sobě bude mít "return".
 
 Příklady:
-<code>
+```
 parameter -> expression
 (parameter1, parameter2) -> expression
 (parameter1, parameter2) -> { code block }
 numbers.forEach( (n) -> { System.out.println(n); } );
-</code>
+```
 
 Novinka Javy 18 je JEP 400: UTF-8 by default. Plno API (včetně standardních Java API) používalo výchozí znakovou sadu, ale ta
 se lišila dle systému i napčíklad dle přihlášeného uživatele, to mohlo zapříčinit poškození ukládaných souborů. Nyní je tedy pro
@@ -34,10 +34,10 @@ pro specifikaci návratového typu funkce, pro lambda výrazy – nejednoznačn�
 Také nefunguje pro specifikování proměnné na úrovni třídy.
 
 Příklady:
-<code>
+```
 var x = 10;
 var info = new ArrayList<String>();
-</code>
+```
 
 ### Describe Java records in (Java 15)
 
@@ -49,7 +49,9 @@ můžeme vytvořit "konstruktor" bez závorek, kde například může být před
 Na record lze například použít getClass().isRecord(), či getClass().getRecordComponents(), přes které lze iterovat.
 
 Příklad:
-<code>public record Timestamp(string id, DateTime dt, string from)</code>
+```
+public record Timestamp(string id, DateTime dt, string from)
+```
 
 ### Describe Java sealed classes introduced (Java 17)
 
@@ -59,10 +61,10 @@ rozšiřují/implementují sealed třídu nebo rozhraní, mohou být buď také 
 efektivně skrze použití recordu nebo enumerátoru). Non-sealed znamená, že může být volně rozšiřována/implementována.
 
 Příklady:
-<code>
+```
 public sealed class Shape permits Square, Circle, OtherShape {}
 non-sealed class OtherShape extends Shape {}
-</code>
+```
 
 ### Difference between Java and JVM
 

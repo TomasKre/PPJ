@@ -17,14 +17,14 @@ Základní paměť a pseudokód
 | AA11           | 0     |
 | AA12           | 0     |
 
-<code>
+```
 main():
   x = 10 //AA10
   y = power2(x) //AA12
 
 power2(x):
   x = x * x //AA11
-</code>
+```
 
 ## Pass by Value
 
