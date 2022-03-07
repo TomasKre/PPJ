@@ -1,10 +1,13 @@
 # Garbage collectors
+
 Garbage collection je způsob spravování paměti. V Javě se explicitně nepřiřazuje paměť (napčíklad na rozdíl od C).
 Při potřebě nových proměnných pokud je paměť – halda ("heap") již zaplněna, program se přeruší a spustí se algoritmus
 garbage kolektoru. Hledání nepotřebných objektů, polí, proměnných.. začíná u "roots" – momentálně používané objekty programem.
 Ty bere jako žívé. Poté skrze ně iteruje a hledá, zda nereferencují na jiný objekt v haldě, toto opakuje pokud neprozkoumá všechny
 live objekty a jejich reference (a jejich refernece atd.). Neprojité objekty pak mohou být dealokovány.
+
 ## G1 – Garbage-First Garbage Collection
+
 Publikace "paperu" 2004, experimentální podpora 2009 (JDK6u14), oficiální podpora 2012 (JDK7u4), výchozí GC 2017 (JDK9).
 Cíl G1 je propustnost (počet transkací za vteřinu) a nízká latence (maximální počet transakcí). Výchozí pauza je 200 milisekund,
 lze manuálně ladit. Vyšší "pause goal" má vyšší propustnot a vyšší latenci, nižší pauza opak.
@@ -18,7 +21,9 @@ objekty jsou kompaktně kopírovány do survivor a old regionů. Když už nezb�
 vrátí k vytváření young kolekcí.
 
 G1 tedy přechází mezi těmito stavy: Young collections -> Young collection + concurrent mark -> Mixed collections -> zpět na YC
+
 ## ZGC (Z Garbage Collector) – Scalable Low-Latency Garbage Collector
+
 Experimentální podpora JDK11, aktualizace JDK12, JDK13, JDK14, production ready JDK15.
 Cíle ZGC jsou: maximální pauza GC 10 ms, až TB haldy, maximální snížení propustnosti o 15 % oproti výchozí GC – G1. Dalším cílem je 
 udělat ZGC jednoduchý na ladění.
@@ -41,6 +46,7 @@ stragických míst. Účelem je při načítání reference objektu z haldy zkon
 "ošetřit" – označit, přesunout..., a tak vylepšit barvu a při příštím použití se tento krok může přeskočit).
 
 ## Porovnání GCs
+
 | GC        | Optimalizován pro                |
 |-----------|----------------------------------|
 | Sériový   | Paměťovou stopu                  |
@@ -55,4 +61,5 @@ stragických míst. Účelem je při načítání reference objektu z haldy zkon
 
 
 ## Co běží souběžně s programem
+
 ![What's concurrent?](GCsConcurrent.jpg)
