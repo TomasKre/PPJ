@@ -176,3 +176,17 @@ VJednou z výhod dynamické kompilace je, že při spouštění aplikací Java n
 Některé z nevýhod zahrnují zpoždění spouštění a režii kompilace za běhu. Aby se omezila režie, mnoho kompilátorů JIT kompiluje pouze často používané cesty kódu.
 
 JIT je feature runtime interpretu, který místo toho, aby interpretoval bytekód pokaždé, když je volána metoda, kód přeloží do isntrukcí pro daný stroj a ten se poté volá místo bytekódu.
+
+## Lecture 3
+
+### Describe difference between namespace, module and service
+
+### Describe Maven POM
+
+### What is Super POM
+
+### Describe Maven build livecycle
+
+### Describe Maven goals
+
+### How are project dependencies managed by Maven
