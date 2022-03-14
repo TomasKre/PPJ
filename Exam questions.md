@@ -125,10 +125,54 @@ G1 má cca o 5 % lepší propustnost, ale ZGC má průměrně více než 100x kr
 
 ### Describe bytecode (groups, prefix/suffix, operand types)
 
+Bytecode je zásobníkově orientovaný, nepoužívá proměnné jako vyšší programovací jazyky, ale veškeré hodnoty ukládá do zásobníku pomocí push a pop. Což je z hlediska stroje efektivní, ale lidsky těžce čitelné. Hodnoty primitivní datových typu jsou napřímo 1, 3.14, nebo 'b', kdežto referenční hodnoty jsou aktuální reference do JVM haldy. Z tohoto důvodu Java přenáší parametry "by value" a nikoliv "by reference". Jména proměnných se tedy nahradí indexy, na ně je referencováno suffixem instrukcí.
+
+Skupiny instrukcí:
+* Načítání a ukládání (load, store)
+* Aritmetické a logické (add, cmpg)
+* Konverze typů (i2d, f2d)
+* Tvorba objektů a manipulace (new, putfield)
+* Management zásobníku operandů (swap, dup)
+* Řížení programu (ifeq, goto)
+* Invokace metod a návrat (invokespecial, areturn)
+* Ostatní – vyhazování výjimek, synchronizace atp.
+
+Prefixy/suffixy referují o typech operandů nad kterými pracují:
+* i integer
+* l long
+* s short
+* b byte
+* c character
+* f float
+* d double
+* a reference
+
+Další možné "suffixy":
+* Načtení a uložení reference **do lokální proměnné 0, 1, 2 a 3** – aload_0, aload_1, aload_2, aload_3, astore_0, astore_1, astore_2, astore_3 (stejně může být pro další typy dload_x apod.)
+* **Zapsání hodnoty 0.0 nebo 1.0** na vrchol zásobníku – dconst_0, dconst_1
+
 ### How is bytecode generated and how can be viewed
+
+Bytecode je generován kompilátorem Javy, který překládá .java kód na bytecode, který následně může být interpreterem (JVM) spuštěn na cílovém stroji. Přeložený Java kód na bytecode v souboru typu .class (případně .jar) může být prohlížen Java Class Disassemblerem skrze příkazovou řádku javap -c com.packageX.classY. Soubor pak lze editovat na úrovni bytekódu. Případně existují knihovny a online nástroje k zobrazení a úpravě .class souborů.
 
 ### Describe operand stack and local variables array
 
+Frame se používá k ukládání dat a částečných výsledků, stejně tak jako k provádění dynamického propojení, návratových hodnot pro metody a odesílání výjimek. Frame se vytváří při každém vyvolání metody a je zničen po dokončení vyvolání jeho metody, ať už je dokončení normální nebo náhlé (nezachycená výjimka). Jeho součástí je pole lokálních proměnných, zásobník operandů a reference na "runtime constant pool" třídy, která obsahuje vykonávanou metodu.
+
+Pole lokálních proměnných je adresováno indexací, první index je 0. Datové typy menší než 32 bitů jsou zvětšeny na požadovanou velikost a 64 bitové typy zabírají místo 2 proměnných. Jednotlivé proměnné mohou mít typy: boolean, byte, char, short, int, float, reference, returnAddress. Long a double zabírají indexy n a n+1 (v tomto případě nelze číst proměnnou na n+1, ale lze do ni zapsat, to pak zneplatní proměnnou na indexu n).
+
+Zásobník operandů (OS) je zásobník, s kterým pracuje JVM při vykonávání programu, drží hodnoty, které se používají k různým instrukcím. Stejně tak se do něho zapisují výsledky operací a také slouží pro uchování hodnot pro následující operace. OS je organizován jako pole wordů (32 bit) a hodnoty se jak vkládají, tak vytahují z vrcholu zásobníku (LIFO).
+
 ### Describe how does bytecode interpretation works in runtime
 
+Bytekód se řádek po řádku překládá do instrukcí pro daný stroj za běhu a dané CPU ho pak vykonává.
+
 ### What is JIT compilation, how does it work
+
+Just-in-time kompilace je metoda pro zlepšení výkonu interpretovaných programů, která probíhá během běhu programu. Program může být za běhu zkompilován do nativního kódu (pro daný stroj), aby se zlepšil jeho výkon (díky přístupu k dynamickým informacím běhového prostředí). Je také známá jako dynamická kompilace.
+
+VJednou z výhod dynamické kompilace je, že při spouštění aplikací Java nebo C# může běhové prostředí profilovat aplikaci během jejího spouštění. To umožňuje generovat více optimalizovaný kód. Pokud se chování aplikace za běhu změní, běhové prostředí může kód překompilovat.
+
+Některé z nevýhod zahrnují zpoždění spouštění a režii kompilace za běhu. Aby se omezila režie, mnoho kompilátorů JIT kompiluje pouze často používané cesty kódu.
+
+JIT je feature runtime interpretu, který místo toho, aby interpretoval bytekód pokaždé, když je volána metoda, kód přeloží do isntrukcí pro daný stroj a ten se poté volá místo bytekódu.
