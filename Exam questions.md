@@ -181,12 +181,66 @@ JIT je feature runtime interpretu, který místo toho, aby interpretoval bytekó
 
 ### Describe difference between namespace, module and service
 
+Namespace jsou v Javě package. Package je pojmenovaná kolekce tříd a případně podbalíčků. Slouží ke seskupení souvisejících tříd a definování namespace pro třídy,
+které obsahuje. Namespace zajišťuje unikátnost názvů pro objekty, třídy apod. uvnitř daného namespace.
+
+Module je agregace na vyšší úrovni, nad balíčky. Module je unikátně pojmenovaná, znovupoužitelná skupina souvisejících balíčků a dalších
+souborů (imgs, XMLs, apod.). "Module descriptor" specifikuje: název balíčků, jeho "dependencies" (jiné balíčky, moduly, které potřebuje ke
+svému fungování), a explicitně specifikuje, jaké balíčky jsou dostupné ostatním modulům (balíčky jsou implicitně privátní). Dále specifikuje
+jaké "services" – služby poskytuje a spotřebovává a kterým dalším modulům poskytuje "reflection" (možnost nastavit setAccessible pro
+privátní metody, třídy balíčku). Moduly jsou součástí Javy od verze 9. Keywords používané při deklarování modulů jsou mimo jiné:
+ exports, module, open, opens, provides, requires, uses, with, to, transition.
+
+Service – služba, je definována množinou rozhraní a tříd. Služba obsahuje rozhraní, nebo abstraktní třídu, které definuje funkcionalitu
+poskytovanou danou službou (její rozhraní). JEdna služba může mít několik implementací, ty se nazývají "service providers". Klient s 
+jednotlivými implementacemi nepřichází do kontaktu, komunikuje pouze se službou přes její rozhraní. Tento klient se nazývá "service 
+consumer". Toto dovoluje měnit implementace, aniž by to afektovalo rozhraní služby, nebo consumera.
+
 ### Describe Maven POM
+
+POM je "Project Object Model". V Maven projektu je typicky v souboru pom.xml, tímto je reprezentován daný projekt. Obsahuje konfigurace,
+verze, informace o buildu, dependency management, moduly, nastavení prostředí, a další informace o projektu (kdo, co, kde), ale i 
+vlastní uživatelské pole s konfiguracemi. Základní pole, která musí obsahovat každý pom.xml jsou: groupId, artifactId, version.
+Tato data slouží jako adresa a časové razítko projektu.
 
 ### What is Super POM
 
+Super POM je výchozí POM Mavenu. Všechny POM dědí POM od rodiče, nebo použijí výchozí. Základní POM je Super POM a obsahuje výchozí 
+zděděné hodnoty. Maven používá "effective POM" (konfigurace se skládá z obsahu Super POM a projektové konfigurace). Všechny modely
+implicitně dědí z Super POM.
+
 ### Describe Maven build livecycle
+
+V Mavenu jsou 3 předpřipravené "lifecycles" projektu. Jejich jednotlivé fáze (build phase) jsou provéděny sekvenčně.
+* default – stará se o nasazení projektu, zkráceně:
+    * validate – zkontroluje, zda je projekt správně a všechny informace jsou dostupné
+    * compile – zkompiluje zdrojové soubory
+    * test – otestuje zkompilované soubory v testovacím rozhraní
+    * package – sloučí zkompilované soubory do distribuovatelncýh balíčků (např. JAR)
+    * verify – provede integrační testy
+    * install –  nainstaluje balíček od lokálního repozitáře pro použití v závislostech lokálně
+    * deploy – dokončení, nakopírování finálního balíčku do vzdáleného repozitáře ke sdílení
+* clean – čištění projektu
+* site – vytvoření webové stránky projektu
 
 ### Describe Maven goals
 
+I když je "build phase" zodpovědná za konkrétní krok v životním cyklu sestavení, způsob, jakým tyto povinnosti provádí, 
+se může lišit. A to se provádí deklarováním "plugin goals" vázaných na tyto fáze sestavení. "Plugin goal" představuje konkrétní úkol
+ (elementárnější než build phase), který přispívá k budování a řízení projektu. Může být vázán na 0 nebo více fází sestavení.
+Cíl, který není vázán na žádnou fázi sestavení, lze provést mimo životní cyklus sestavení přímým vyvoláním. Pořadí provádění 
+závisí na pořadí, ve kterém jsou vyvolány cíle a fáze sestavení.
+
 ### How are project dependencies managed by Maven
+
+Maven zjišťuje, jaké moduly jsou potřeba z dat obsažených v pom.xml. Podle vypsaných modulů, balíčků v pom.xml zjistí, jaké balíčky potřebujou
+tyto balíčky a jaké potřebují tyto atd. Tudíž je potřeba pro každý projekt specifikovat pouze přímé závislosti, zbytek je obstarán 
+automaticky. Není žádná maximální hloubka stromu závislostí, problém nastává pouze u cyklických závislostí. Maven nabízí několik
+ features:
+* Dependency mediation – určí, jaká verze má být použita, pokud je potřeba balíček vícekrát (dle hloubky a pořadí, kde je potřeba ve stromě
+závislostí)
+* Dependency management – přímo specifikuje, jaká verze artefaktů má být použita, když jsou nalezeny tranzitivní závislosti
+* Dependency scope – určuje v jakém stádiu buildu mají být různmé artefakty použity (compile – výchozí, provided, runtime, test,
+system, import)
+* Excluded dependencies
+* Optional dependencies
