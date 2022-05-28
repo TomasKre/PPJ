@@ -1,7 +1,12 @@
+-- Drop database
+ALTER TABLE City DROP CONSTRAINT City_Country
+DROP TABLE City
+DROP TABLE Country
+
 -- Tables
 -- Table: City
 CREATE TABLE City (
-    id int  NOT NULL,
+    id int IDENTITY(1,1) NOT NULL,
     name nvarchar(64)  NOT NULL,
     country nchar(2)  NOT NULL,
     lon real  NOT NULL,
