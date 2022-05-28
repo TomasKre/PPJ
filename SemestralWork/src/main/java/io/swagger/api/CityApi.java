@@ -35,7 +35,7 @@ public interface CityApi {
     @RequestMapping(value = "/city/{id}",
         produces = { "application/json" }, 
         method = RequestMethod.DELETE)
-    ResponseEntity<City> deleteCity(@ApiParam(value = "",required=true) @PathVariable("id") String id);
+    ResponseEntity<City> deleteCity(@ApiParam(value = "",required=true) @PathVariable("id") Integer id);
 
 
     @ApiOperation(value = "", nickname = "getCities", notes = "", response = Cities.class, tags={ "city", })
@@ -73,6 +73,6 @@ public interface CityApi {
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.PUT)
-    ResponseEntity<City> updateCity(@ApiParam(value = "",required=true) @PathVariable("id") String id,@ApiParam(value = "" ,required=true )  @Valid @RequestBody City body);
+    ResponseEntity<City> updateCity(@ApiParam(value = "",required=true) @PathVariable("id") Integer id,@ApiParam(value = "" ,required=true )  @Valid @RequestBody City body);
 
 }
