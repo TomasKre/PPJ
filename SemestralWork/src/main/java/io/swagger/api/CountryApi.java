@@ -32,10 +32,10 @@ public interface CountryApi {
     @ApiOperation(value = "", nickname = "deleteCountry", notes = "", response = Country.class, tags={ "country", })
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "No content", response = Country.class) })
-    @RequestMapping(value = "/country/{id}",
+    @RequestMapping(value = "/country/{country}",
         produces = { "application/json" }, 
         method = RequestMethod.DELETE)
-    ResponseEntity<Country> deleteCountry(@ApiParam(value = "",required=true) @PathVariable("id") String id);
+    ResponseEntity<Country> deleteCountry(@ApiParam(value = "",required=true) @PathVariable("country") String country);
 
 
     @ApiOperation(value = "", nickname = "getCountries", notes = "", response = Countries.class, tags={ "country", })
@@ -50,10 +50,10 @@ public interface CountryApi {
     @ApiOperation(value = "", nickname = "getCountry", notes = "", response = Country.class, tags={ "country", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Success", response = Country.class) })
-    @RequestMapping(value = "/country/{id}",
+    @RequestMapping(value = "/country/{country}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<Country> getCountry(@ApiParam(value = "",required=true) @PathVariable("id") Integer id);
+    ResponseEntity<Country> getCountry(@ApiParam(value = "",required=true) @PathVariable("country") String country);
 
 
     @ApiOperation(value = "", nickname = "postCountry", notes = "", response = Country.class, tags={ "country", })
@@ -69,10 +69,10 @@ public interface CountryApi {
     @ApiOperation(value = "", nickname = "updateCountry", notes = "", response = Country.class, tags={ "country", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Success", response = Country.class) })
-    @RequestMapping(value = "/country/{id}",
+    @RequestMapping(value = "/country/{country}",
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.PUT)
-    ResponseEntity<Country> updateCountry(@ApiParam(value = "",required=true) @PathVariable("id") String id,@ApiParam(value = "" ,required=true )  @Valid @RequestBody Country body);
+    ResponseEntity<Country> updateCountry(@ApiParam(value = "",required=true) @PathVariable("country") String country,@ApiParam(value = "" ,required=true )  @Valid @RequestBody Country body);
 
 }
