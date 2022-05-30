@@ -24,6 +24,7 @@ import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2022-05-27T22:30:01.988Z")
 
@@ -201,4 +202,68 @@ public class CountryApiController implements CountryApi {
         return new ResponseEntity<Country>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    public ResponseEntity<String> exportCountries() {
+        if (this.connection == null) {
+            initializeConnection();
+        }
+        String accept = request.getHeader("Accept");
+        if (accept != null && accept.contains("application/json")) {
+            try {
+                PreparedStatement preparedStatement = connection.prepareStatement(
+                        "SELECT country, country_long, name FROM Country");
+
+                ResultSet rs = preparedStatement.executeQuery();
+                StringBuilder sb = new StringBuilder();
+                while(rs.next()) {
+                    sb.append(rs.getString(1) + ",");
+                    sb.append(rs.getString(2) + ",");
+                    sb.append(rs.getString(3));
+                }
+
+                log.info("Executed exportCountries");
+                return new ResponseEntity<String>(sb.toString(), HttpStatus.OK);
+            } catch (SQLException e) {
+                log.error("Error exporting Countries", e);
+                return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+        log.error("Unknown error end of exportCountries method");
+        return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    public ResponseEntity<String> importCountries(@ApiParam(value = "" ,required=true )  @Valid @RequestBody String csv) {
+        if (this.connection == null) {
+            initializeConnection();
+        }
+        String accept = request.getHeader("Accept");
+        if (accept != null && accept.contains("application/json")) {
+            String[] lines = csv.split("\n");
+            ResultSet rs;
+            PreparedStatement preparedStatement;
+            int i = 1;
+            String response = "";
+            for (String line : lines) {
+                String[] parts = line.split(",");
+                try {
+                    preparedStatement = connection.prepareStatement("INSERT INTO Country VALUES (" +
+                            "?, ?, ?)");
+                    preparedStatement.setString(1, parts[0]);
+                    preparedStatement.setString(2, parts[1]);
+                    preparedStatement.setString(3, parts[2]);
+
+                    int rowsAffected = preparedStatement.executeUpdate();
+                    if (rowsAffected == 0) {
+                        response += "Error creating city on line " + i + "\n";
+                    }
+                } catch (SQLException e) {
+                    response += "Error creating city on line " + i + "\n";
+                }
+                i++;
+            }
+            log.info("Imported countries");
+            return new ResponseEntity<String>(response, HttpStatus.CREATED);
+        }
+        log.error("Unknown error end of importCities method");
+        return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
