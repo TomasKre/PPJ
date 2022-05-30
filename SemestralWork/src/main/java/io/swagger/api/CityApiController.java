@@ -259,7 +259,7 @@ public class CityApiController implements CityApi {
                     sb.append(rs.getString(1) + ",");
                     sb.append(rs.getString(2) + ",");
                     sb.append(rs.getFloat(3) + ",");
-                    sb.append(rs.getFloat(4) + ",");
+                    sb.append(rs.getFloat(4));
                 }
 
                 log.error("Executed exportCities");
