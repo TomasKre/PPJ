@@ -31,9 +31,9 @@ public interface WeatherApi {
     @ApiOperation(value = "", nickname = "getWeather", notes = "", response = Weather.class, tags={ "weather", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Success", response = Weather.class) })
-    @RequestMapping(value = "/weather/{id}",
+    @RequestMapping(value = "/weather/{city_name}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<Weather> getWeather(@ApiParam(value = "",required=true) @PathVariable("id") Integer id);
+    ResponseEntity<Weather> getWeather(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name);
 
 }
