@@ -178,5 +178,9 @@ public class City   {
     }
     return o.toString().replace("\n", "\n    ");
   }
+
+  public String toCSV() {
+    return this.id + "," + this.name + "," + this.country + "," + this.lon + "," + this.lat;
+  }
 }
 

@@ -25,6 +25,7 @@ import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2022-05-27T22:30:01.988Z")
 
@@ -239,6 +240,89 @@ public class CityApiController implements CityApi {
         }
         log.error("Unknown error end of updateCity method");
         return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    public ResponseEntity<String> exportCities() {
+        if (this.connection == null) {
+            initializeConnection();
+        }
+        String accept = request.getHeader("Accept");
+        if (accept != null && accept.contains("application/json")) {
+            try {
+                PreparedStatement preparedStatement = connection.prepareStatement(
+                        "SELECT name, country," +
+                                " lon, lat FROM City");
+
+                ResultSet rs = preparedStatement.executeQuery();
+                StringBuilder sb = new StringBuilder();
+                while(rs.next()) {
+                    sb.append(rs.getString(1) + ",");
+                    sb.append(rs.getString(2) + ",");
+                    sb.append(rs.getFloat(3) + ",");
+                    sb.append(rs.getFloat(4) + ",");
+                }
+
+                log.error("Executed exportCities");
+                return new ResponseEntity<String>(sb.toString(), HttpStatus.OK);
+            } catch (SQLException e) {
+                log.error("Error exporting Cities", e);
+                return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+        log.error("Unknown error end of exportCities method");
+        return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    public ResponseEntity<String> importCities(@ApiParam(value = "" ,required=true )  @Valid @RequestBody String csv) {
+        if (this.connection == null) {
+            initializeConnection();
+        }
+        String accept = request.getHeader("Accept");
+        if (accept != null && accept.contains("application/json")) {
+            String[] lines = csv.split("\n");
+            ResultSet rs;
+            PreparedStatement preparedStatement;
+            ArrayList<String> countries = new ArrayList<>();
+            try {
+                preparedStatement = connection.prepareStatement("SELECT country FROM Country");
+                rs = preparedStatement.executeQuery();
+                while(rs.next()) {
+                    countries.add(rs.getString(1));
+                }
+            } catch (SQLException e) {
+                log.error("Error getting countries in importCities");
+                return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            int i = 1;
+            String response = "";
+            for (String line : lines) {
+                String[] parts = line.split(",");
+                if (countries.contains(parts[2])) {
+                    try {
+                        preparedStatement = connection.prepareStatement("INSERT INTO City VALUES (" +
+                                "?, ?, ?, ?)");
+                        preparedStatement.setString(1, parts[0]);
+                        preparedStatement.setString(2, parts[1]);
+                        preparedStatement.setFloat(3, Float.parseFloat(parts[2]));
+                        preparedStatement.setFloat(4, Float.parseFloat(parts[3]));
+
+                        int rowsAffected = preparedStatement.executeUpdate();
+                        if (rowsAffected == 0) {
+                            response += "Error creating city on line " + i + "\n";
+                        }
+                    } catch (SQLException e) {
+                        response += "Error creating city on line " + i + "\n";
+                    }
+                } else {
+                    response += "Country code doesn't exist on line " + i + "\n";
+                }
+                i++;
+            }
+            log.info("Imported cities");
+            return new ResponseEntity<String>(response, HttpStatus.CREATED);
+        }
+        log.error("Unknown error end of importCities method");
+        return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

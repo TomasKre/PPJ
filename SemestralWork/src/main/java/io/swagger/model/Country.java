@@ -128,5 +128,9 @@ public class Country   {
     }
     return o.toString().replace("\n", "\n    ");
   }
+
+  public String toCSV() {
+    return this.country + "," + this.countryLong + "," + this.name;
+  }
 }
 
