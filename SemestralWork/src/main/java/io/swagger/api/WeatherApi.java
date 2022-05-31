@@ -10,17 +10,9 @@ import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-import java.util.List;
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2022-05-27T22:30:01.988Z")
 
 @Validated
@@ -34,6 +26,6 @@ public interface WeatherApi {
     @RequestMapping(value = "/weather/{city_name}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<Weather> getWeather(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name);
+    ResponseEntity<String> getWeather(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name);
 
 }
