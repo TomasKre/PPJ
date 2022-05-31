@@ -4,8 +4,7 @@ import io.swagger.model.Cities;
 import io.swagger.model.City;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -27,6 +26,9 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
+
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2022-05-27T22:30:01.988Z")
 
 // Prepared statement chrání před SQL Injection
@@ -34,7 +36,7 @@ import java.util.List;
 @Controller
 public class CityApiController implements CityApi {
 
-    private static final Logger log = LoggerFactory.getLogger(CityApiController.class);
+    private static final Logger log = Logger.getLogger(CityApiController.class.getName());
 
     private final ObjectMapper objectMapper;
 
@@ -45,10 +47,21 @@ public class CityApiController implements CityApi {
 
     private static Connection connection;
 
-    @org.springframework.beans.factory.annotation.Autowired
+    @Autowired
     public CityApiController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
         this.request = request;
+
+        FileHandler fh;
+        try {
+            fh = new FileHandler("./City.log", true);
+            log.addHandler(fh);
+            SimpleFormatter formatter = new SimpleFormatter();
+            fh.setFormatter(formatter);
+        } catch (IOException e) {
+            log.severe(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void initializeConnection() {
@@ -56,6 +69,7 @@ public class CityApiController implements CityApi {
             this.connection = DriverManager.getConnection(env.getProperty("spring.datasource.url"));
         } catch (SQLException e) {
             e.printStackTrace();
+            log.severe(e.getMessage());
         }
     }
 
@@ -73,14 +87,14 @@ public class CityApiController implements CityApi {
                     log.info("Deleted city id: " + id);
                     return new ResponseEntity<City>(HttpStatus.NO_CONTENT);
                 }
-                log.error("Error deleting city id: " + id);
+                log.severe("Error deleting city id: " + id);
                 return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
             } catch (SQLException e) {
-                log.error("Error deleting city id: " + id, e);
+                log.severe("Error deleting city id: " + id + " " + e.getMessage());
                 return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        log.error("Unknown error end of deleteCity method");
+        log.severe("Unknown error end of deleteCity method");
         return new ResponseEntity<City>(HttpStatus.NOT_IMPLEMENTED);
     }
 
@@ -110,11 +124,11 @@ public class CityApiController implements CityApi {
                 log.info("Executed getCities");
                 return new ResponseEntity<Cities>(cities, HttpStatus.OK);
             } catch (SQLException e) {
-                log.error("Error getting Cities", e);
+                log.severe("Error getting Cities " + e.getMessage());
                 return new ResponseEntity<Cities>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        log.error("Unknown error end of getCities method");
+        log.severe("Unknown error end of getCities method");
         return new ResponseEntity<Cities>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -143,11 +157,11 @@ public class CityApiController implements CityApi {
                 log.info("Executed getCity id: " + id);
                 return new ResponseEntity<City>(city, HttpStatus.OK);
             } catch (SQLException e) {
-                log.error("Error getting City id: " + id, e);
+                log.severe("Error getting City id: " + id + " " + e);
                 return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        log.error("Unknown error end of getCity method");
+        log.severe("Unknown error end of getCity method");
         return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -181,18 +195,18 @@ public class CityApiController implements CityApi {
                         log.info("Created new City");
                         return new ResponseEntity<City>(HttpStatus.CREATED);
                     }
-                    log.error("Error creating new City");
+                    log.severe("Error creating new City");
                     return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
                 } catch (SQLException e) {
-                    log.error("Error creating new City", e);
+                    log.severe("Error creating new City " + e.getMessage());
                     return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             } catch (SQLException e) {
-                log.error("Country code doesn't exist", e);
+                log.severe("Country code doesn't exist " + e.getMessage());
                 return new ResponseEntity<City>(HttpStatus.BAD_REQUEST);
             }
         }
-        log.error("Unknown error end of postCity method");
+        log.severe("Unknown error end of postCity method");
         return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -227,18 +241,18 @@ public class CityApiController implements CityApi {
                         log.info("Updated City id: " + id);
                         return new ResponseEntity<City>(HttpStatus.CREATED);
                     }
-                    log.error("Error updating City id: " + id);
+                    log.severe("Error updating City id: " + id);
                     return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
                 } catch (SQLException e) {
-                    log.error("Error updating City id: " + id, e);
+                    log.severe("Error updating City id: " + id + " " + e.getMessage());
                     return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             } catch (SQLException e) {
-                log.error("Country code doesn't exist", e);
+                log.severe("Country code doesn't exist " + e.getMessage());
                 return new ResponseEntity<City>(HttpStatus.BAD_REQUEST);
             }
         }
-        log.error("Unknown error end of updateCity method");
+        log.severe("Unknown error end of updateCity method");
         return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -265,11 +279,11 @@ public class CityApiController implements CityApi {
                 log.info("Executed exportCities");
                 return new ResponseEntity<String>(sb.toString(), HttpStatus.OK);
             } catch (SQLException e) {
-                log.error("Error exporting Cities", e);
+                log.severe("Error exporting Cities " + e.getMessage());
                 return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        log.error("Unknown error end of exportCities method");
+        log.severe("Unknown error end of exportCities method");
         return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -290,9 +304,10 @@ public class CityApiController implements CityApi {
                     countries.add(rs.getString(1));
                 }
             } catch (SQLException e) {
-                log.error("Error getting countries in importCities");
+                log.severe("Error getting countries in importCities");
                 return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
+            int correct = 0;
             int i = 1;
             String response = "";
             for (String line : lines) {
@@ -309,6 +324,8 @@ public class CityApiController implements CityApi {
                         int rowsAffected = preparedStatement.executeUpdate();
                         if (rowsAffected == 0) {
                             response += "Error creating city on line " + i + "\n";
+                        } else {
+                            correct++;
                         }
                     } catch (SQLException e) {
                         response += "Error creating city on line " + i + "\n";
@@ -318,10 +335,10 @@ public class CityApiController implements CityApi {
                 }
                 i++;
             }
-            log.info("Imported cities");
+            log.info("Imported " + correct + " cities");
             return new ResponseEntity<String>(response, HttpStatus.CREATED);
         }
-        log.error("Unknown error end of importCities method");
+        log.severe("Unknown error end of importCities method");
         return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

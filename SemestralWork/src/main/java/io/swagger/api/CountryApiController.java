@@ -5,8 +5,7 @@ import io.swagger.model.Countries;
 import io.swagger.model.Country;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -26,12 +25,15 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
+
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2022-05-27T22:30:01.988Z")
 
 @Controller
 public class CountryApiController implements CountryApi {
 
-    private static final Logger log = LoggerFactory.getLogger(CountryApiController.class);
+    private static final Logger log = Logger.getLogger(CountryApiController.class.getName());
 
     private final ObjectMapper objectMapper;
 
@@ -46,6 +48,17 @@ public class CountryApiController implements CountryApi {
     public CountryApiController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
         this.request = request;
+
+        FileHandler fh;
+        try {
+            fh = new FileHandler("./Country.log", true);
+            log.addHandler(fh);
+            SimpleFormatter formatter = new SimpleFormatter();
+            fh.setFormatter(formatter);
+        } catch (IOException e) {
+            log.severe(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void initializeConnection() {
@@ -53,6 +66,7 @@ public class CountryApiController implements CountryApi {
             this.connection = DriverManager.getConnection(env.getProperty("spring.datasource.url"));
         } catch (SQLException e) {
             e.printStackTrace();
+            log.severe(e.getMessage());
         }
     }
 
@@ -70,14 +84,14 @@ public class CountryApiController implements CountryApi {
                     log.info("Deleted country: " + country);
                     return new ResponseEntity<Country>(HttpStatus.NO_CONTENT);
                 }
-                log.error("Error deleting country: " + country);
+                log.severe("Error deleting country: " + country);
                 return new ResponseEntity<Country>(HttpStatus.INTERNAL_SERVER_ERROR);
             } catch (SQLException e) {
-                log.error("Error deleting country: " + country, e);
+                log.severe("Error deleting country: " + country + " " + e.getMessage());
                 return new ResponseEntity<Country>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        log.error("Unknown error end of deleteCountry method");
+        log.severe("Unknown error end of deleteCountry method");
         return new ResponseEntity<Country>(HttpStatus.NOT_IMPLEMENTED);
     }
 
@@ -103,11 +117,11 @@ public class CountryApiController implements CountryApi {
                 log.info("Executed getCountries");
                 return new ResponseEntity<Countries>(countries, HttpStatus.OK);
             } catch (SQLException e) {
-                log.error("Error getting Countries", e);
+                log.severe("Error getting Countries " + e.getMessage());
                 return new ResponseEntity<Countries>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        log.error("Unknown error end of getCountries method");
+        log.severe("Unknown error end of getCountries method");
         return new ResponseEntity<Countries>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -134,11 +148,11 @@ public class CountryApiController implements CountryApi {
                 log.info("Executed getCountry id: " + country);
                 return new ResponseEntity<Country>(country_obj, HttpStatus.OK);
             } catch (SQLException e) {
-                log.error("Error getting Country id: " + country, e);
+                log.severe("Error getting Country id: " + country + " " + e.getMessage());
                 return new ResponseEntity<Country>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        log.error("Unknown error end of getCountry method");
+        log.severe("Unknown error end of getCountry method");
         return new ResponseEntity<Country>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -160,14 +174,14 @@ public class CountryApiController implements CountryApi {
                     log.info("Created new Country");
                     return new ResponseEntity<Country>(HttpStatus.CREATED);
                 }
-                log.error("Error creating new Country");
+                log.severe("Error creating new Country");
                 return new ResponseEntity<Country>(HttpStatus.BAD_REQUEST);
             } catch (SQLException e) {
-                log.error("Error creating new Country", e);
+                log.severe("Error creating new Country " + e.getMessage());
                 return new ResponseEntity<Country>(HttpStatus.BAD_REQUEST);
             }
         }
-        log.error("Unknown error end of postCountry method");
+        log.severe("Unknown error end of postCountry method");
         return new ResponseEntity<Country>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -191,14 +205,14 @@ public class CountryApiController implements CountryApi {
                     log.info("Updated Country:" + country);
                     return new ResponseEntity<Country>(HttpStatus.CREATED);
                 }
-                log.error("Error updating Country:" + country);
+                log.severe("Error updating Country:" + country);
                 return new ResponseEntity<Country>(HttpStatus.BAD_REQUEST);
             } catch (SQLException e) {
-                log.error("Error updating Country:" + country, e);
+                log.severe("Error updating Country:" + country + " " + e.getMessage());
                 return new ResponseEntity<Country>(HttpStatus.BAD_REQUEST);
             }
         }
-        log.error("Unknown error end of updateCountry method");
+        log.severe("Unknown error end of updateCountry method");
         return new ResponseEntity<Country>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -223,11 +237,11 @@ public class CountryApiController implements CountryApi {
                 log.info("Executed exportCountries");
                 return new ResponseEntity<String>(sb.toString(), HttpStatus.OK);
             } catch (SQLException e) {
-                log.error("Error exporting Countries", e);
+                log.severe("Error exporting Countries " + e.getMessage());
                 return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        log.error("Unknown error end of exportCountries method");
+        log.severe("Unknown error end of exportCountries method");
         return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -240,6 +254,8 @@ public class CountryApiController implements CountryApi {
             String[] lines = csv.split("\n");
             ResultSet rs;
             PreparedStatement preparedStatement;
+
+            int correct = 0;
             int i = 1;
             String response = "";
             for (String line : lines) {
@@ -254,16 +270,18 @@ public class CountryApiController implements CountryApi {
                     int rowsAffected = preparedStatement.executeUpdate();
                     if (rowsAffected == 0) {
                         response += "Error creating city on line " + i + "\n";
+                    } else {
+                        correct++;
                     }
                 } catch (SQLException e) {
                     response += "Error creating city on line " + i + "\n";
                 }
                 i++;
             }
-            log.info("Imported countries");
+            log.info("Imported " + correct + " countries");
             return new ResponseEntity<String>(response, HttpStatus.CREATED);
         }
-        log.error("Unknown error end of importCities method");
+        log.severe("Unknown error end of importCities method");
         return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

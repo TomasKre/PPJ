@@ -16,8 +16,9 @@ import io.swagger.model.City;
 import io.swagger.model.Wind;
 import io.swagger.model.openweather.OpenWeather;
 import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.SimpleFormatter;
 
 import io.swagger.Swagger2SpringBoot;
 import org.springframework.format.FormatterRegistry;
@@ -50,7 +52,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 public class FetchDataService {
     @Autowired
     private Environment env;
-    private static final Logger log = LoggerFactory.getLogger(FetchDataService.class);
+    private static final Logger log = Logger.getLogger(FetchDataService.class.getName());
 
     @Value("${spring.data.mongodb.uri}")
     private String mongoURI;
@@ -64,6 +66,17 @@ public class FetchDataService {
 
 
     public FetchDataService() {
+        FileHandler fh;
+        try {
+            fh = new FileHandler("./FetchDataService.log", true);
+            log.addHandler(fh);
+            SimpleFormatter formatter = new SimpleFormatter();
+            fh.setFormatter(formatter);
+        } catch (IOException e) {
+            log.severe(e.getMessage());
+            e.printStackTrace();
+        }
+
         Runnable fetchData = () -> fetchCities();
         ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
         exec.scheduleAtFixedRate(fetchData , 10, 86400, TimeUnit.SECONDS);
@@ -94,7 +107,7 @@ public class FetchDataService {
             }
             fetchData();
         } catch (SQLException e) {
-            log.error("Error getting cities list", e);
+            log.severe("Error getting cities list " + e.getMessage());
         }
         log.info("Fetched new data for cities and weather");
     }
@@ -149,13 +162,11 @@ public class FetchDataService {
                 }
                 log.info("Inserted " + documents.size() + " documents of city " + city.getName());
             }
-        } catch (ProtocolException e) {
-            throw new RuntimeException(e);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            log.severe(e.getMessage());
+            e.printStackTrace();
         }
+
     }
 
     public void initializeMongoConnection() {
@@ -163,6 +174,7 @@ public class FetchDataService {
             MongoClient client = MongoClients.create(mongoURI);
             this.database = client.getDatabase("PPJ");
         } catch (Exception e) {
+            log.severe(e.getMessage());
             e.printStackTrace();
         }
     }
@@ -171,6 +183,7 @@ public class FetchDataService {
         try {
             this.connection = DriverManager.getConnection(sqlURI);
         } catch (Exception e) {
+            log.severe(e.getMessage());
             e.printStackTrace();
         }
     }

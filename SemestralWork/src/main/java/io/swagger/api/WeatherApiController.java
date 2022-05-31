@@ -9,8 +9,7 @@ import io.swagger.model.Cities;
 import io.swagger.model.City;
 import io.swagger.model.openweather.OpenWeather;
 import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -29,6 +28,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -37,7 +38,7 @@ import static com.mongodb.client.model.Filters.eq;
 @Controller
 public class WeatherApiController implements WeatherApi {
 
-    private static final Logger log = LoggerFactory.getLogger(WeatherApiController.class);
+    private static final Logger log = Logger.getLogger(WeatherApiController.class.getName());
     private final ObjectMapper objectMapper;
     private final HttpServletRequest request;
     @Autowired
@@ -48,7 +49,18 @@ public class WeatherApiController implements WeatherApi {
     @org.springframework.beans.factory.annotation.Autowired
     public WeatherApiController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
-        this.request = request;
+        this.request = request;;
+
+        FileHandler fh;
+        try {
+            fh = new FileHandler("./Weather.log", true);
+            log.addHandler(fh);
+            SimpleFormatter formatter = new SimpleFormatter();
+            fh.setFormatter(formatter);
+        } catch (IOException e) {
+            log.severe(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void initializeMongoConnection() {
@@ -59,6 +71,7 @@ public class WeatherApiController implements WeatherApi {
 
         } catch (Exception e) {
             e.printStackTrace();
+            log.severe(e.getMessage());
         }
     }
 
@@ -67,6 +80,7 @@ public class WeatherApiController implements WeatherApi {
             this.connection = DriverManager.getConnection(env.getProperty("spring.datasource.url"));
         } catch (SQLException e) {
             e.printStackTrace();
+            log.severe(e.getMessage());
         }
     }
 
@@ -92,11 +106,11 @@ public class WeatherApiController implements WeatherApi {
                 log.info("Executed getWeather method");
                 return new ResponseEntity<String>(response, HttpStatus.OK);
             } catch (Exception e) {
-                log.error("Error executing getWeather", e);
+                log.severe("Error executing getWeather " + e.getMessage());
                 return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        log.error("Error at end of getWeather method");
+        log.severe("Error at end of getWeather method");
         return new ResponseEntity<String>(HttpStatus.NOT_IMPLEMENTED);
     }
 
@@ -122,11 +136,11 @@ public class WeatherApiController implements WeatherApi {
                 log.info("Executed exportWeather method");
                 return new ResponseEntity<String>(response, HttpStatus.OK);
             } catch (Exception e) {
-                log.error("Error executing exportWeather", e);
+                log.severe("Error executing exportWeather " + e.getMessage());
                 return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        log.error("Error at end of exportWeather method");
+        log.severe("Error at end of exportWeather method");
         return new ResponseEntity<String>(HttpStatus.NOT_IMPLEMENTED);
     }
 
@@ -154,7 +168,7 @@ public class WeatherApiController implements WeatherApi {
                     city.setLat(rs.getFloat(5));
                 }
             } catch (SQLException e) {
-                log.error("Error getting city info");
+                log.severe("Error getting city info");
                 return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
             String[] lines = csv.split("\n");
@@ -186,10 +200,11 @@ public class WeatherApiController implements WeatherApi {
                 log.info("Inserted measurements document of city " + city.getName());
                 return new ResponseEntity<String>(HttpStatus.CREATED);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.severe("Error inserting document to Mongo Atlas " + e.getMessage());
+                return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        log.error("Unknown error end of importWeather method");
+        log.severe("Unknown error end of importWeather method");
         return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
