@@ -67,7 +67,7 @@ public class CountryApiController implements CountryApi {
                 preparedStatement.setString(1, country);
                 int rowsAffected = preparedStatement.executeUpdate();
                 if (rowsAffected > 0) {
-                    log.error("Deleted country: " + country);
+                    log.info("Deleted country: " + country);
                     return new ResponseEntity<Country>(HttpStatus.NO_CONTENT);
                 }
                 log.error("Error deleting country: " + country);
@@ -100,7 +100,7 @@ public class CountryApiController implements CountryApi {
                     country_obj.setName(rs.getString(3));
                     countries.add(country_obj);
                 }
-                log.error("Executed getCountries");
+                log.info("Executed getCountries");
                 return new ResponseEntity<Countries>(countries, HttpStatus.OK);
             } catch (SQLException e) {
                 log.error("Error getting Countries", e);
@@ -131,7 +131,7 @@ public class CountryApiController implements CountryApi {
                 country_obj.setCountryLong(rs.getString(2));
                 country_obj.setName(rs.getString(3));
 
-                log.error("Executed getCountry id: " + country);
+                log.info("Executed getCountry id: " + country);
                 return new ResponseEntity<Country>(country_obj, HttpStatus.OK);
             } catch (SQLException e) {
                 log.error("Error getting Country id: " + country, e);
@@ -157,7 +157,7 @@ public class CountryApiController implements CountryApi {
 
                 int rowsAffected = preparedStatement.executeUpdate();
                 if (rowsAffected > 0) {
-                    log.error("Created new Country");
+                    log.info("Created new Country");
                     return new ResponseEntity<Country>(HttpStatus.CREATED);
                 }
                 log.error("Error creating new Country");
@@ -188,7 +188,7 @@ public class CountryApiController implements CountryApi {
 
                 int rowsAffected = preparedStatement.executeUpdate();
                 if (rowsAffected > 0) {
-                    log.error("Updated Country:" + country);
+                    log.info("Updated Country:" + country);
                     return new ResponseEntity<Country>(HttpStatus.CREATED);
                 }
                 log.error("Error updating Country:" + country);

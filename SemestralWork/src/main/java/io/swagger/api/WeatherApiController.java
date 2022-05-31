@@ -78,11 +78,4 @@ public class WeatherApiController implements WeatherApi {
         return new ResponseEntity<String>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    Block<Document> printBlock = new Block<Document>() {
-        @Override
-        public void apply(final Document document) {
-            System.out.println(document.toJson());
-        }
-    };
-
 }

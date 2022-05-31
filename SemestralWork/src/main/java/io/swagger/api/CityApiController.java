@@ -70,7 +70,7 @@ public class CityApiController implements CityApi {
                 preparedStatement.setInt(1, id);
                 int rowsAffected = preparedStatement.executeUpdate();
                 if (rowsAffected > 0) {
-                    log.error("Deleted city id: " + id);
+                    log.info("Deleted city id: " + id);
                     return new ResponseEntity<City>(HttpStatus.NO_CONTENT);
                 }
                 log.error("Error deleting city id: " + id);
@@ -107,7 +107,7 @@ public class CityApiController implements CityApi {
                     cities.add(city);
                 }
 
-                log.error("Executed getCities");
+                log.info("Executed getCities");
                 return new ResponseEntity<Cities>(cities, HttpStatus.OK);
             } catch (SQLException e) {
                 log.error("Error getting Cities", e);
@@ -140,7 +140,7 @@ public class CityApiController implements CityApi {
                 city.setLon(rs.getFloat(4));
                 city.setLat(rs.getFloat(5));
 
-                log.error("Executed getCity id: " + id);
+                log.info("Executed getCity id: " + id);
                 return new ResponseEntity<City>(city, HttpStatus.OK);
             } catch (SQLException e) {
                 log.error("Error getting City id: " + id, e);
@@ -178,7 +178,7 @@ public class CityApiController implements CityApi {
 
                     int rowsAffected = preparedStatement.executeUpdate();
                     if (rowsAffected > 0) {
-                        log.error("Created new City");
+                        log.info("Created new City");
                         return new ResponseEntity<City>(HttpStatus.CREATED);
                     }
                     log.error("Error creating new City");
@@ -224,7 +224,7 @@ public class CityApiController implements CityApi {
 
                     int rowsAffected = preparedStatement.executeUpdate();
                     if (rowsAffected > 0) {
-                        log.error("Updated City id: " + id);
+                        log.info("Updated City id: " + id);
                         return new ResponseEntity<City>(HttpStatus.CREATED);
                     }
                     log.error("Error updating City id: " + id);
@@ -262,7 +262,7 @@ public class CityApiController implements CityApi {
                     sb.append(rs.getFloat(4));
                 }
 
-                log.error("Executed exportCities");
+                log.info("Executed exportCities");
                 return new ResponseEntity<String>(sb.toString(), HttpStatus.OK);
             } catch (SQLException e) {
                 log.error("Error exporting Cities", e);
