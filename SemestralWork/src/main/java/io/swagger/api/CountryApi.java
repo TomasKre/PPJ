@@ -75,4 +75,20 @@ public interface CountryApi {
         method = RequestMethod.PUT)
     ResponseEntity<Country> updateCountry(@ApiParam(value = "",required=true) @PathVariable("country") String country,@ApiParam(value = "" ,required=true )  @Valid @RequestBody Country body);
 
+    @ApiOperation(value = "", nickname = "exportCountries", notes = "", response = String.class, tags={ "country", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = String.class) })
+    @RequestMapping(value = "/country/export",
+            produces = { "application/json" },
+            method = RequestMethod.GET)
+    ResponseEntity<String> exportCountries();
+
+    @ApiOperation(value = "", nickname = "importCountries", notes = "", response = String.class, tags={ "country", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Success", response = String.class) })
+    @RequestMapping(value = "/country/import",
+            produces = { "application/json" },
+            consumes = { "application/json" },
+            method = RequestMethod.POST)
+    ResponseEntity<String> importCountries(@ApiParam(value = "" ,required=true )  @Valid @RequestBody String csv);
 }

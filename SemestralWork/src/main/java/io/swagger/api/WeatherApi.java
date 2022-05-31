@@ -10,8 +10,11 @@ import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import javax.validation.Valid;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2022-05-27T22:30:01.988Z")
 
@@ -28,4 +31,20 @@ public interface WeatherApi {
         method = RequestMethod.GET)
     ResponseEntity<String> getWeather(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name);
 
+    @ApiOperation(value = "", nickname = "exportWeather", notes = "", response = String.class, tags={ "weather", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = String.class) })
+    @RequestMapping(value = "/weather/export",
+            produces = { "application/json" },
+            method = RequestMethod.GET)
+    ResponseEntity<String> exportWeather();
+
+    @ApiOperation(value = "", nickname = "importWeather", notes = "", response = String.class, tags={ "weather", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Success", response = String.class) })
+    @RequestMapping(value = "/weather/import/{city_name}",
+            produces = { "application/json" },
+            consumes = { "application/json" },
+            method = RequestMethod.POST)
+    ResponseEntity<String> importWeather(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name, @ApiParam(value = "" ,required=true )  @Valid @RequestBody String csv);
 }

@@ -130,7 +130,7 @@ public class WeatherApiController implements WeatherApi {
         return new ResponseEntity<String>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<String> importCities(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name, @ApiParam(value = "" ,required=true )  @Valid @RequestBody String csv) {
+    public ResponseEntity<String> importWeather(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name, @ApiParam(value = "" ,required=true )  @Valid @RequestBody String csv) {
         if (this.database == null) {
             initializeMongoConnection();
         }

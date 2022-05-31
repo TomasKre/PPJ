@@ -75,4 +75,20 @@ public interface CityApi {
         method = RequestMethod.PUT)
     ResponseEntity<City> updateCity(@ApiParam(value = "",required=true) @PathVariable("id") Integer id,@ApiParam(value = "" ,required=true )  @Valid @RequestBody City body);
 
+    @ApiOperation(value = "", nickname = "exportCities", notes = "", response = String.class, tags={ "city", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = String.class) })
+    @RequestMapping(value = "/city/export",
+            produces = { "application/json" },
+            method = RequestMethod.GET)
+    ResponseEntity<String> exportCities();
+
+    @ApiOperation(value = "", nickname = "importCities", notes = "", response = String.class, tags={ "city", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Success", response = String.class) })
+    @RequestMapping(value = "/city/import",
+            produces = { "application/json" },
+            consumes = { "application/json" },
+            method = RequestMethod.POST)
+    ResponseEntity<String> importCities(@ApiParam(value = "" ,required=true )  @Valid @RequestBody String csv);
 }
