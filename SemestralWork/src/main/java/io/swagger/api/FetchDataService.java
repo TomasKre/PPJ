@@ -4,22 +4,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
 import io.swagger.configuration.LocalDateConverter;
 import io.swagger.configuration.LocalDateTimeConverter;
 import io.swagger.model.Cities;
 import io.swagger.model.City;
+import io.swagger.model.Weather;
 import io.swagger.model.Wind;
 import io.swagger.model.openweather.OpenWeather;
 import org.bson.Document;
 
+import java.time.Instant;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
@@ -52,8 +52,8 @@ import org.springframework.format.FormatterRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Projections.excludeId;
 
 @Service
 @Configurable
@@ -87,18 +87,20 @@ public class FetchDataService {
             log.severe(e.getMessage());
             e.printStackTrace();
         }
-
-        autoFetch = true;
-        autoFetchSeconds = 86400;
-        if(autoFetch) {
-            Runnable fetchData = () -> fetchCities();
-            ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
-            exec.scheduleAtFixedRate(fetchData, 5, autoFetchSeconds, TimeUnit.SECONDS);
-        }
+        Runnable startFetching = () -> startServices();
+        ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
+        exec.schedule(startFetching, 5, TimeUnit.SECONDS);
     }
 
-    private void waitForAutowire() {
-
+    public void startServices() {
+        Runnable deleteData = () -> deleteData();
+        ScheduledExecutorService execDelete = Executors.newScheduledThreadPool(1);
+        execDelete.scheduleAtFixedRate(deleteData, 0, autoFetchSeconds, TimeUnit.SECONDS);
+        if(autoFetch) {
+            Runnable fetchData = () -> fetchCities();
+            ScheduledExecutorService execFetch = Executors.newScheduledThreadPool(1);
+            execFetch.scheduleAtFixedRate(fetchData, 15, autoFetchSeconds, TimeUnit.SECONDS);
+        }
     }
 
     private void fetchCities() {
@@ -190,6 +192,25 @@ public class FetchDataService {
             e.printStackTrace();
         }
 
+    }
+
+    private void deleteData() {
+        if (this.database == null) {
+            initializeMongoConnection();
+        }
+        MongoCollection<Document> collection = database.getCollection("weather");
+        FindIterable<Document> iterator = collection.find();
+
+        long unixTime = Instant.now().getEpochSecond();
+        try {
+            Bson query = lt("forecast.dt", unixTime - retainDays * 86400);
+            DeleteResult result = collection.deleteMany(query);
+            log.info("Deleted " + result.getDeletedCount() + " old weather forecasts");
+        } catch (MongoException e) {
+            log.severe("Unable to delete due to error " + e.getMessage());
+        } finally {
+            iterator.cursor().close();
+        }
     }
 
     public void initializeMongoConnection() {

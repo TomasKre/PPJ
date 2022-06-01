@@ -38,8 +38,8 @@ class ApiTest {
     @MockBean
     WeatherApiController weatherApi;
 
-    @MockBean
-    FetchDataService fetchDataService;
+    //@MockBean
+    //FetchDataService fetchDataService;
 
     @Test
     void addCity() throws Exception {

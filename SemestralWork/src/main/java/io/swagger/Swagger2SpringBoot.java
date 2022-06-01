@@ -46,17 +46,10 @@ public class Swagger2SpringBoot implements CommandLineRunner {
 
     public static void main(String[] args) throws Exception {
         new SpringApplication(Swagger2SpringBoot.class).run(args);
-        new FetchDataService();
     }
 
     @Configuration
     public static class MyConfig extends WebMvcConfigurerAdapter {
-        @Value("${spring.data.mongodb.uri}")
-        static String mongoURI;
-        @Value("${spring.datasource.url}")
-        static String sqlURI;
-        @Value("${open.weather.api.key}")
-        static String apiKey;
         @Override
         public void addFormatters(FormatterRegistry registry) {
             registry.addConverter(new LocalDateConverter("yyyy-MM-dd"));
