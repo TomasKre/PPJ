@@ -32,10 +32,10 @@ public interface CityApi {
     @ApiOperation(value = "", nickname = "deleteCity", notes = "", response = City.class, tags={ "city", })
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "No content", response = City.class) })
-    @RequestMapping(value = "/city/{id}",
+    @RequestMapping(value = "/city/{city_name}",
         produces = { "application/json" }, 
         method = RequestMethod.DELETE)
-    ResponseEntity<City> deleteCity(@ApiParam(value = "",required=true) @PathVariable("id") Integer id);
+    ResponseEntity<City> deleteCity(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name);
 
 
     @ApiOperation(value = "", nickname = "getCities", notes = "", response = Cities.class, tags={ "city", })
@@ -50,10 +50,10 @@ public interface CityApi {
     @ApiOperation(value = "", nickname = "getCity", notes = "", response = City.class, tags={ "city", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Success", response = City.class) })
-    @RequestMapping(value = "/city/{id}",
+    @RequestMapping(value = "/city/{city_name}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<City> getCity(@ApiParam(value = "",required=true) @PathVariable("id") Integer id);
+    ResponseEntity<City> getCity(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name);
 
 
     @ApiOperation(value = "", nickname = "postCity", notes = "", response = City.class, tags={ "city", })
@@ -69,11 +69,11 @@ public interface CityApi {
     @ApiOperation(value = "", nickname = "updateCity", notes = "", response = City.class, tags={ "city", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Success", response = City.class) })
-    @RequestMapping(value = "/city/{id}",
+    @RequestMapping(value = "/city/{city_name}",
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.PUT)
-    ResponseEntity<City> updateCity(@ApiParam(value = "",required=true) @PathVariable("id") Integer id,@ApiParam(value = "" ,required=true )  @Valid @RequestBody City body);
+    ResponseEntity<City> updateCity(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name,@ApiParam(value = "" ,required=true )  @Valid @RequestBody City body);
 
     @ApiOperation(value = "", nickname = "exportCities", notes = "", response = String.class, tags={ "city", })
     @ApiResponses(value = {

@@ -73,24 +73,24 @@ public class CityApiController implements CityApi {
         }
     }
 
-    public ResponseEntity<City> deleteCity(@ApiParam(value = "",required=true) @PathVariable("id") Integer id) {
+    public ResponseEntity<City> deleteCity(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name) {
         if (this.connection == null) {
             initializeConnection();
         }
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
-                PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM City WHERE id = ?");
-                preparedStatement.setInt(1, id);
+                PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM City WHERE city = ?");
+                preparedStatement.setString(1, city_name);
                 int rowsAffected = preparedStatement.executeUpdate();
                 if (rowsAffected > 0) {
-                    log.info("Deleted city id: " + id);
+                    log.info("Deleted city: " + city_name);
                     return new ResponseEntity<City>(HttpStatus.NO_CONTENT);
                 }
-                log.severe("Error deleting city id: " + id);
+                log.severe("Error deleting city: " + city_name);
                 return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
             } catch (SQLException e) {
-                log.severe("Error deleting city id: " + id + " " + e.getMessage());
+                log.severe("Error deleting city: " + city_name + " " + e.getMessage());
                 return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
@@ -132,7 +132,7 @@ public class CityApiController implements CityApi {
         return new ResponseEntity<Cities>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public ResponseEntity<City> getCity(@ApiParam(value = "",required=true) @PathVariable("id") Integer id) {
+    public ResponseEntity<City> getCity(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name) {
         if (this.connection == null) {
             initializeConnection();
         }
@@ -141,8 +141,8 @@ public class CityApiController implements CityApi {
             try {
                 PreparedStatement preparedStatement = connection.prepareStatement(
                         "SELECT id, name, country," +
-                        " lon, lat FROM City WHERE id = ?");
-                preparedStatement.setInt(1, id);
+                        " lon, lat FROM City WHERE city = ?");
+                preparedStatement.setString(1, city_name);
 
                 ResultSet rs = preparedStatement.executeQuery();
                 rs.next();
@@ -154,10 +154,10 @@ public class CityApiController implements CityApi {
                 city.setLon(rs.getFloat(4));
                 city.setLat(rs.getFloat(5));
 
-                log.info("Executed getCity id: " + id);
+                log.info("Executed getCity: " + city_name);
                 return new ResponseEntity<City>(city, HttpStatus.OK);
             } catch (SQLException e) {
-                log.severe("Error getting City id: " + id + " " + e);
+                log.severe("Error getting City: " + city_name + " " + e);
                 return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
@@ -210,7 +210,7 @@ public class CityApiController implements CityApi {
         return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public ResponseEntity<City> updateCity(@ApiParam(value = "",required=true) @PathVariable("id") Integer id,@ApiParam(value = "" ,required=true )  @Valid @RequestBody City body) {
+    public ResponseEntity<City> updateCity(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name,@ApiParam(value = "" ,required=true )  @Valid @RequestBody City body) {
         if (this.connection == null) {
             initializeConnection();
         }
@@ -229,22 +229,22 @@ public class CityApiController implements CityApi {
 
                 try {
                     preparedStatement = connection.prepareStatement("UPDATE City SET " +
-                            " name = ?, country = ?, lon = ?, lat = ? WHERE id = ?");
+                            " name = ?, country = ?, lon = ?, lat = ? WHERE city_name = ?");
                     preparedStatement.setString(1, body.getName());
                     preparedStatement.setString(2, body.getCountry());
                     preparedStatement.setFloat(3, body.getLon());
                     preparedStatement.setFloat(4, body.getLat());
-                    preparedStatement.setInt(5, id);
+                    preparedStatement.setString(5, city_name);
 
                     int rowsAffected = preparedStatement.executeUpdate();
                     if (rowsAffected > 0) {
-                        log.info("Updated City id: " + id);
+                        log.info("Updated City: " + city_name);
                         return new ResponseEntity<City>(HttpStatus.CREATED);
                     }
-                    log.severe("Error updating City id: " + id);
+                    log.severe("Error updating City: " + city_name);
                     return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
                 } catch (SQLException e) {
-                    log.severe("Error updating City id: " + id + " " + e.getMessage());
+                    log.severe("Error updating City: " + city_name + " " + e.getMessage());
                     return new ResponseEntity<City>(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             } catch (SQLException e) {
