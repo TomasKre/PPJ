@@ -31,11 +31,11 @@ public interface WeatherApi {
         method = RequestMethod.GET)
     ResponseEntity<String> getWeather(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name);
 
-    @ApiOperation(value = "", nickname = "exportWeather", notes = "", response = String.class, tags={ "weather", })
+    @ApiOperation(value = "", nickname = "exportWeather", notes = "", tags={ "weather", })
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = String.class) })
+            @ApiResponse(code = 200, message = "Success") })
     @RequestMapping(value = "/weather/export",
-            produces = { "application/json" },
+            produces = { "text/plain" },
             method = RequestMethod.GET)
     ResponseEntity<String> exportWeather();
 
@@ -44,7 +44,7 @@ public interface WeatherApi {
             @ApiResponse(code = 201, message = "Success", response = String.class) })
     @RequestMapping(value = "/weather/import",
             produces = { "application/json" },
-            consumes = { "application/json" },
+            consumes = { "text/plain" },
             method = RequestMethod.POST)
     ResponseEntity<String> importWeather(@ApiParam(value = "" ,required=true )  @Valid @RequestBody String csv);
 

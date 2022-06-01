@@ -75,11 +75,11 @@ public interface CountryApi {
         method = RequestMethod.PUT)
     ResponseEntity<Country> updateCountry(@ApiParam(value = "",required=true) @PathVariable("country") String country,@ApiParam(value = "" ,required=true )  @Valid @RequestBody Country body);
 
-    @ApiOperation(value = "", nickname = "exportCountries", notes = "", response = String.class, tags={ "country", })
+    @ApiOperation(value = "", nickname = "exportCountries", notes = "", tags={ "country", })
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = String.class) })
+            @ApiResponse(code = 200, message = "Success") })
     @RequestMapping(value = "/country/export",
-            produces = { "application/json" },
+            produces = { "text/plain" },
             method = RequestMethod.GET)
     ResponseEntity<String> exportCountries();
 

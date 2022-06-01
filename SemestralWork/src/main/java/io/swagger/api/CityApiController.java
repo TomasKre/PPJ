@@ -261,7 +261,7 @@ public class CityApiController implements CityApi {
             initializeConnection();
         }
         String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
+        if (accept != null && (accept.contains("text/plain") || accept.contains("text/csv"))) {
             try {
                 PreparedStatement preparedStatement = connection.prepareStatement(
                         "SELECT name, country," +
@@ -273,7 +273,7 @@ public class CityApiController implements CityApi {
                     sb.append(rs.getString(1) + ",");
                     sb.append(rs.getString(2) + ",");
                     sb.append(rs.getFloat(3) + ",");
-                    sb.append(rs.getFloat(4));
+                    sb.append(rs.getFloat(4) + "\n");
                 }
 
                 log.info("Executed exportCities");

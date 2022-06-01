@@ -221,7 +221,7 @@ public class CountryApiController implements CountryApi {
             initializeConnection();
         }
         String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
+        if (accept != null && (accept.contains("text/plain") || accept.contains("text/csv"))) {
             try {
                 PreparedStatement preparedStatement = connection.prepareStatement(
                         "SELECT country, country_long, name FROM Country");
@@ -231,7 +231,7 @@ public class CountryApiController implements CountryApi {
                 while(rs.next()) {
                     sb.append(rs.getString(1) + ",");
                     sb.append(rs.getString(2) + ",");
-                    sb.append(rs.getString(3));
+                    sb.append(rs.getString(3) + "\n");
                 }
 
                 log.info("Executed exportCountries");

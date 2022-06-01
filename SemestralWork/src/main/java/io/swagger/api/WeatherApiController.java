@@ -123,7 +123,7 @@ public class WeatherApiController implements WeatherApi {
             initializeMongoConnection();
         }
         String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
+        if (accept != null && (accept.contains("text/plain") || accept.contains("text/csv"))) {
             try {
                 MongoCollection<Document> collection = database.getCollection("weather");
 
