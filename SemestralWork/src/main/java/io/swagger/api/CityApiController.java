@@ -141,7 +141,7 @@ public class CityApiController implements CityApi {
             try {
                 PreparedStatement preparedStatement = connection.prepareStatement(
                         "SELECT id, name, country," +
-                        " lon, lat FROM City WHERE city = ?");
+                        " lon, lat FROM City WHERE name = ?");
                 preparedStatement.setString(1, city_name);
 
                 ResultSet rs = preparedStatement.executeQuery();
