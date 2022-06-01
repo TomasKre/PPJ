@@ -42,9 +42,19 @@ public interface WeatherApi {
     @ApiOperation(value = "", nickname = "importWeather", notes = "", response = String.class, tags={ "weather", })
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Success", response = String.class) })
-    @RequestMapping(value = "/weather/import/{city_name}",
+    @RequestMapping(value = "/weather/import",
             produces = { "application/json" },
             consumes = { "application/json" },
             method = RequestMethod.POST)
-    ResponseEntity<String> importWeather(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name, @ApiParam(value = "" ,required=true )  @Valid @RequestBody String csv);
+    ResponseEntity<String> importWeather(@ApiParam(value = "" ,required=true )  @Valid @RequestBody String csv);
+
+    @ApiOperation(value = "", nickname = "getAverageWeather", notes = "", response = Weather.class, tags={ "weather", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = Weather.class) })
+    @RequestMapping(value = "/weather/{city_name}/{days_back}",
+            produces = { "application/json" },
+            method = RequestMethod.GET)
+    ResponseEntity<Weather> getAvarageWeather(@ApiParam(value = "",required=true) @PathVariable("city_name") String city_name,
+                                             @ApiParam(value = "",required=true) @PathVariable("days_back") Integer days_back);
+
 }

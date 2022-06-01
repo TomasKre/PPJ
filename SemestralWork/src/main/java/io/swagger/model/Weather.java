@@ -23,21 +23,13 @@ import javax.validation.constraints.*;
 public class Weather   {
   @JsonProperty("forecast")
   @Valid
-  private List<Forecast> forecast = null;
+  private Forecast forecast = null;
 
   @JsonProperty("city")
   private City city = null;
 
-  public Weather forecast(List<Forecast> forecast) {
+  public Weather forecast(Forecast forecast) {
     this.forecast = forecast;
-    return this;
-  }
-
-  public Weather addForecastItem(Forecast forecastItem) {
-    if (this.forecast == null) {
-      this.forecast = new ArrayList<Forecast>();
-    }
-    this.forecast.add(forecastItem);
     return this;
   }
 
@@ -49,11 +41,11 @@ public class Weather   {
 
   @Valid
 
-  public List<Forecast> getForecast() {
+  public Forecast getForecast() {
     return forecast;
   }
 
-  public void setForecast(List<Forecast> forecast) {
+  public void setForecast(Forecast forecast) {
     this.forecast = forecast;
   }
 

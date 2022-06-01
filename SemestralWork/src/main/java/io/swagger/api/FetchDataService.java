@@ -79,7 +79,7 @@ public class FetchDataService {
 
         Runnable fetchData = () -> fetchCities();
         ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
-        exec.scheduleAtFixedRate(fetchData , 10, 86400, TimeUnit.SECONDS);
+        exec.scheduleAtFixedRate(fetchData , 15, 86400, TimeUnit.SECONDS);
     }
 
     private void fetchCities() {
@@ -119,9 +119,8 @@ public class FetchDataService {
         try {
             MongoCollection<Document> collection = database.getCollection("weather");
             for (City city : this.cities) {
-                List<Document> documents = new ArrayList<>();
                 String apiURL ="https://api.openweathermap.org/data/2.5/forecast?lat=" + city.getLat() +
-                        "&lon=" + city.getLon() + "&appid=" + apiKey;
+                        "&lon=" + city.getLon() + "&units=metric&appid=" + apiKey;
                 URL url = new URL(apiURL);
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
                 con.setRequestMethod("GET");
@@ -139,24 +138,27 @@ public class FetchDataService {
                 ObjectMapper om = new ObjectMapper();
                 OpenWeather root = om.readValue(content.toString(), OpenWeather.class);
 
-                Document doc = new Document("city", new Document("country", city.getCountry())
-                        .append("id", city.getId()).append("lat", city.getLat())
-                        .append("lon", city.getLon()).append("name", city.getName()));
+                List<Document> documents = new ArrayList<>();
                 for (int i = 0; i < root.list.size(); i++) {
+                    Document doc = new Document("city", new Document("country", city.getCountry())
+                            .append("id", city.getId()).append("lat", city.getLat())
+                            .append("lon", city.getLon()).append("name", city.getName()));
+
                     io.swagger.model.openweather.List rootListI = root.list.get(i);
-                    Document wind = new Document("wind", new Document("speed", rootListI.wind.deg)
-                            .append("deg", rootListI.wind.deg).append("gust", rootListI.wind.gust));
-                    Document listI = new Document("dt", rootListI.dt).append("dt_txt", rootListI.dt_txt)
+                    Document wind = new Document("speed", rootListI.wind.speed)
+                            .append("deg", rootListI.wind.deg).append("gust", rootListI.wind.gust);
+                    Document weather = new Document("dt", rootListI.dt).append("dt_txt", rootListI.dt_txt)
                             .append("temp", rootListI.main.temp).append("feels_like", rootListI.main.feels_like)
                             .append("temp_min", rootListI.main.temp_min).append("temp_max", rootListI.main.temp_max)
                             .append("pressure", rootListI.main.pressure).append("sea_level", rootListI.main.sea_level)
                             .append("grnd_level", rootListI.main.grnd_level).append("humidity", rootListI.main.humidity)
                             .append("wind", wind).append("visibility", rootListI.visibility);
-                    documents.add(listI);
+                    doc.append("forecast", weather);
+                    documents.add(doc);
                 }
-                doc.append("forecast", Arrays.asList(documents));
+
                 try {
-                    collection.insertOne(doc);
+                    collection.insertMany(documents);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
