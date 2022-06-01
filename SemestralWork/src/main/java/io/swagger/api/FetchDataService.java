@@ -8,6 +8,9 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.ReplaceOptions;
+import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.InsertOneResult;
 import io.swagger.configuration.LocalDateConverter;
 import io.swagger.configuration.LocalDateTimeConverter;
@@ -19,6 +22,8 @@ import org.bson.Document;
 
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
+
+import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,11 +52,12 @@ import org.springframework.format.FormatterRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 @Service
 @Configurable
 public class FetchDataService {
-    @Autowired
-    private Environment env;
     private static final Logger log = Logger.getLogger(FetchDataService.class.getName());
 
     @Value("${spring.data.mongodb.uri}")
@@ -63,7 +69,12 @@ public class FetchDataService {
     private Cities cities;
     @Value("${open.weather.api.key}")
     private String apiKey;
-
+    @Value("${days.to.retain.data}")
+    private Integer retainDays;
+    @Value("${auto.fetch.data}")
+    private Boolean autoFetch;
+    @Value("${auto.fetch.seconds}")
+    private Integer autoFetchSeconds;
 
     public FetchDataService() {
         FileHandler fh;
@@ -77,9 +88,17 @@ public class FetchDataService {
             e.printStackTrace();
         }
 
-        Runnable fetchData = () -> fetchCities();
-        ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
-        exec.scheduleAtFixedRate(fetchData , 15, 86400, TimeUnit.SECONDS);
+        autoFetch = true;
+        autoFetchSeconds = 86400;
+        if(autoFetch) {
+            Runnable fetchData = () -> fetchCities();
+            ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
+            exec.scheduleAtFixedRate(fetchData, 5, autoFetchSeconds, TimeUnit.SECONDS);
+        }
+    }
+
+    private void waitForAutowire() {
+
     }
 
     private void fetchCities() {
@@ -138,7 +157,8 @@ public class FetchDataService {
                 ObjectMapper om = new ObjectMapper();
                 OpenWeather root = om.readValue(content.toString(), OpenWeather.class);
 
-                List<Document> documents = new ArrayList<>();
+                ReplaceOptions options = new ReplaceOptions().upsert(true);
+                int j = 0;
                 for (int i = 0; i < root.list.size(); i++) {
                     Document doc = new Document("city", new Document("country", city.getCountry())
                             .append("id", city.getId()).append("lat", city.getLat())
@@ -154,15 +174,16 @@ public class FetchDataService {
                             .append("grnd_level", rootListI.main.grnd_level).append("humidity", rootListI.main.humidity)
                             .append("wind", wind).append("visibility", rootListI.visibility);
                     doc.append("forecast", weather);
-                    documents.add(doc);
+                    Bson filter = and(eq("forecast.dt", rootListI.dt),
+                            eq("city.name", city.getName()));
+                    j = i + 1;
+                    try {
+                        collection.replaceOne(filter, doc, options);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-
-                try {
-                    collection.insertMany(documents);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                log.info("Inserted " + documents.size() + " documents of city " + city.getName());
+                log.info("Inserted or replaced " + j + " documents of city " + city.getName());
             }
         } catch (Exception e) {
             log.severe(e.getMessage());
