@@ -244,3 +244,42 @@ závislostí)
 system, import)
 * Excluded dependencies
 * Optional dependencies
+
+## Lecture 4
+
+### Describe dependency injection and inversion of control
+### Describe Spring application container
+### Describe annotations
+#### @autowired
+#### @component
+#### @configuration
+#### @qualifier
+#### @ComponentScan
+
+### What does bean represent in Spring
+### Describe difference between Singleton and Prototype bean scope
+### Describe bean lifecycle events
+
+## Lecture 5
+
+### Describe annotations
+#### @springbootapplication
+#### @EnableAutoConfiguration
+#### @PropertySource
+#### @Profile
+#### @value
+### Describe basic components of Logback logging system
+### Describe 3 logging levels with examples when to use them
+### Difference between SL4F and Logback
+### Describe one of open source logging stack
+#### ELK
+#### Grafana + Loki
+### Describe following application containerization terms
+#### Image
+#### Repository
+#### Container
+
+## Lecture 6
+
+### Describe how does Spring JDBC interact with relational database
+### Describe Spring transactions and their properties
